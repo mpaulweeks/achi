@@ -1,0 +1,39 @@
+.block {
+    float: left;
+    cursor: pointer;
+    border: solid black 2px;
+    margin: 20px;
+    width: 100px;
+    height: 100px;
+    -webkit-border-radius: 50px;
+    -moz-border-radius: 50px;
+    border-radius: 50px; 
+    background-color: white;
+}
+
+.row {
+	width: 432px;
+	margin: 0px auto;
+}
+
+.red {
+	background-color: red;
+}
+
+.blue {
+	background-color: blue;
+}
+
+.float-clear {
+    clear: both;
+}
+
+#board {
+	background-image: url("board.gif");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+body {
+	text-align: center;
+}

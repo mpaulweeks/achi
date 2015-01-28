@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+
+<!-- oh snap its achi -->
+
+<html>
+    <head>
+        <title>achi</title>
+        <link href='http://fonts.googleapis.com/css?family=Audiowide' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" type="text/css" href="achi.css" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+        <script src="achi.js"></script>
+        <link rel="shortcut icon" href="favicon.ico" />
+        
+    </head>
+
+    <body>
+        <h1>
+            achi
+        </h1>
+
+        <h3 id="message">
+        </h3>
+
+        <div id="board">
+
+            <div class="row">
+                <div id="0-0" class="block"></div>
+                <div id="1-0" class="block"></div>
+                <div id="2-0" class="block"></div>
+            </div>
+            <div class="row float-clear">
+                <div id="0-1" class="block"></div>
+                <div id="1-1" class="block"></div>
+                <div id="2-1" class="block"></div>
+            </div>
+            <div class="row float-clear">
+                <div id="0-2" class="block"></div>
+                <div id="1-2" class="block"></div>
+                <div id="2-2" class="block"></div>
+            </div>
+
+            <div class="float-clear"></div>
+
+        </div>
+
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+                game();
+            });
+        </script>
+    </body>
+</html>
