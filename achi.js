@@ -1,17 +1,28 @@
 function game(){
 
+//constants
 var message_query = '#message';
-var setup = true;
-var stonesInHand = 8;
-var grid = [
-	[null,null,null],
-	[null,null,null],
-	[null,null,null],
-];
 var players = ['red','blue'];
 var current_id = 1;
 var current = players[current_id];
+var winningCoords = [
+	[pair(0,0), pair(0,1), pair(0,2)],
+	[pair(1,0), pair(1,1), pair(1,2)],
+	[pair(2,0), pair(2,1), pair(2,2)],
+	[pair(0,0), pair(1,0), pair(2,0)],
+	[pair(0,1), pair(1,1), pair(2,1)],
+	[pair(0,2), pair(1,2), pair(2,2)],
+	[pair(0,0), pair(1,1), pair(2,2)],
+	[pair(0,2), pair(1,1), pair(2,0)],
+];
 
+//stuff that gets setup
+var setup;
+var gameOver;
+var stonesInHand;
+var grid;
+
+//functions
 function switchTurn(){
 	current_id = (current_id + 1) % players.length;
 	current = players[current_id];
@@ -68,17 +79,6 @@ function areNeighbors(c1, c2){
 	)
 }
 
-var winningCoords = [
-	[pair(0,0), pair(0,1), pair(0,2)],
-	[pair(1,0), pair(1,1), pair(1,2)],
-	[pair(2,0), pair(2,1), pair(2,2)],
-	[pair(0,0), pair(1,0), pair(2,0)],
-	[pair(0,1), pair(1,1), pair(2,1)],
-	[pair(0,2), pair(1,2), pair(2,2)],
-	[pair(0,0), pair(1,1), pair(2,2)],
-	[pair(0,2), pair(1,1), pair(2,0)],
-];
-
 function checkVictory(){
 	var current_stones = [];
 	for(var x = 0; x < 3; x++){
@@ -122,10 +122,7 @@ function draw(){
 	}
 }
 
-var gameOver = false;
-
 function action(coord){
-
 	var moveHappened = false;
 
 	if(setup){
@@ -137,7 +134,6 @@ function action(coord){
 			}
 
 			moveHappened = true;
-			console.log('placed');
 		}
 	} else {
 		if(getGrid(coord) == current){
@@ -147,7 +143,6 @@ function action(coord){
 				setGrid(coord, null);
 
 				moveHappened = true;
-				console.log('moved');
 			}
 		}
 	}
@@ -163,7 +158,20 @@ function action(coord){
 	}
 }
 
-$('.block').on('click', function () {
+function startGame(){
+	setup = true;
+	gameOver = false;
+	stonesInHand = 8;
+	grid = [
+		[null,null,null],
+		[null,null,null],
+		[null,null,null],
+	];
+	switchTurn();
+	draw();
+}
+
+$('.block').on('click', function (){
 	if(!gameOver){
 		var coordStr = $(this)[0].id;
 		var coord = pair(coordStr[0], coordStr[2]);
@@ -171,6 +179,8 @@ $('.block').on('click', function () {
 	}
 });
 
-switchTurn();
+$('#reset').on('click', startGame);
+
+startGame();
 
 }
