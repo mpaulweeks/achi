@@ -1,8 +1,15 @@
+
+body {
+    background-color: #eeeeee;
+    font-family: "Cambria", Helvetica, Arial, sans-serif;
+    text-align: center;
+}
+
 .block {
     float: left;
     cursor: pointer;
     border: solid black 2px;
-    margin: 20px;
+    margin: 22px;
     width: 100px;
     height: 100px;
     -webkit-border-radius: 50px;
@@ -11,7 +18,7 @@
     background-color: white;
 }
 
-.row {
+.holder {
 	width: 432px;
 	margin: 0px auto;
 }
@@ -34,6 +41,10 @@
     background-position: center;
 }
 
-body {
-	text-align: center;
+.msg-red {
+    color: red;
+}
+
+.msg-blue {
+    color: blue;
 }

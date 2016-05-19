@@ -27,6 +27,8 @@ function switchTurn(){
 	current_id = (current_id + 1) % players.length;
 	current = players[current_id];
 	$(message_query).html(current + "'s turn");
+	$(message_query).removeClass();
+	$(message_query).addClass('msg-' + current);
 }
 
 function pair(x,y){
