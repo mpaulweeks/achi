@@ -114,11 +114,11 @@ function startGame(){
 		test_move(2,0);
 		test_move(1,0);
 		test_move(1,2);
-		// test_move(0,2);
-		// test_move(0,1);
-		// test_move(2,2);
-		// test_move(1,2);
-		// test_move(0,2);
+		test_move(0,2);
+		test_move(0,1);
+		test_move(2,2);
+		test_move(1,2);
+		test_move(0,2);
 	}
 }
 
@@ -131,19 +131,6 @@ $('.block').on('click', function (){
 });
 
 $('#reset').on('click', startGame);
-$('#btn1').on('click', function(){
-	console.log(board.rotate());
-	draw();
-});
-$('#btn2').on('click', function(){
-	board = board.rotate();
-	draw();
-});
-$('#btn3').on('click', function(){
-	board = board.flip();
-	draw();
-});
 
 startGame();
-
 }
