@@ -160,6 +160,18 @@ $('.block').on('click', function (){
 });
 
 $('#reset').on('click', startGame);
+$('#btn1').on('click', function(){
+	console.log(grid.rotate());
+	draw();
+});
+$('#btn2').on('click', function(){
+	grid.arr = grid.rotate();
+	draw();
+});
+$('#btn3').on('click', function(){
+	grid.arr = grid.flip();
+	draw();
+});
 
 startGame();
 

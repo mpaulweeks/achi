@@ -82,21 +82,21 @@ var Grid = function(arr){
     }
 
     self.rotate = function(){
-        var new_grid = generate_grid();
-        new_grid[1][1] = self.arr[1,1];
-        new_grid[0][0] = self.arr[0,2];
-        new_grid[2][0] = self.arr[0,0];
-        new_grid[2][2] = self.arr[2,0];
-        new_grid[0][2] = self.arr[2,2];
-        new_grid[1][0] = self.arr[0,1];
-        new_grid[2][1] = self.arr[1,0];
-        new_grid[1][2] = self.arr[2,1];
-        new_grid[0][1] = self.arr[1,2];
+        var new_grid = self.generate_grid();
+        new_grid[1][1] = self.arr[1][1];
+        new_grid[0][0] = self.arr[0][2];
+        new_grid[2][0] = self.arr[0][0];
+        new_grid[2][2] = self.arr[2][0];
+        new_grid[0][2] = self.arr[2][2];
+        new_grid[1][0] = self.arr[0][1];
+        new_grid[2][1] = self.arr[1][0];
+        new_grid[1][2] = self.arr[2][1];
+        new_grid[0][1] = self.arr[1][2];
         return new_grid;
     }
 
     self.flip = function(){
-        var new_grid = generate_grid();
+        var new_grid = self.generate_grid();
         for(var x = 0; x < 3; x++){
             for(var y = 0; y < 3; y++){
                 new_grid[x][y] = self.arr[x][2-y];
