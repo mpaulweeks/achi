@@ -33,6 +33,9 @@ var ai_brain = null;
 
 //stuff that gets setup
 var board = Board();
+if (Boolean(read_url_param('ai'))){
+	ai_brain = Brain(1 - board.current_index);
+}
 
 //functions
 function switchTurn(){
@@ -44,7 +47,7 @@ function switchTurn(){
 }
 
 function is_ai_turn(){
-	return ai_brain && ai_brain.pid == board.current;
+	return ai_brain && ai_brain.player_id == board.current;
 }
 
 function check_ai_move(){
@@ -62,7 +65,7 @@ function checkGameOver(){
 
 function draw(){
 	var stones = $('.block');
-	board.players.forEach(function (tag){
+	PLAYER_IDS.forEach(function (tag){
 	    stones.removeClass(tag);
 	});
 	for(var x = 0; x < 3; x++){
@@ -104,10 +107,6 @@ function startGame(){
 	switchTurn();
 	draw();
 
-	if (Boolean(read_url_param('ai'))){
-		ai_brain = Brain(board.current);
-		check_ai_move();
-	}
 	if (Boolean(read_url_param('test'))){
 		test_move(1,1);
 		test_move(0,0);

@@ -119,6 +119,9 @@ var Grid = function(arr){
 }
 
 
+var PLAYER_IDS = ['red','blue'];
+
+
 var Board = function(current_index, grid, rotations, flipped){
 
     var self = {};
@@ -126,9 +129,8 @@ var Board = function(current_index, grid, rotations, flipped){
     self.rotations = rotations || 0;
     self.flipped = flipped || false;
 
-    self.players = ['red','blue'];
     self.current_index = current_index || 0;
-    self.current = self.players[self.current_index];
+    self.current = PLAYER_IDS[self.current_index];
 
     self.reset = function(){
         self.grid = Grid();
@@ -237,7 +239,7 @@ var Board = function(current_index, grid, rotations, flipped){
 
     self.switch_current = function(){
         self.current_index = 1 - self.current_index;
-        self.current = self.players[self.current_index];
+        self.current = PLAYER_IDS[self.current_index];
     }
 
     self.action = function(coord){
@@ -264,6 +266,37 @@ var Board = function(current_index, grid, rotations, flipped){
         }
 
         return moveHappened;
+    }
+
+    self.equal_position = function(position){
+        for(var x = 0; x < 3; x++){
+            for(var y = 0; y < 3; y++){
+                var coord = Pair(x,y);
+                if (self.getGrid(coord) != position[x][y]){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    self.check_position = function(mutations, position){
+        for (var i = 0; i < mutations.length; i++){
+            if (mutations[i].equal_position(position)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    self.check_positions = function(positions){
+        var mutations = self.generate_mutations();
+        for (var i = 0; i < positions.length; i++){
+            if (self.check_position(mutations, positions[i])){
+                return true;
+            }
+        }
+        return false;
     }
 
     return self;
