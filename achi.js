@@ -29,7 +29,7 @@ read_url_param = function(param_name, as_list){
 
 //constants
 var message_query = '#message';
-var ai_on = false;
+var ai_brain = null;
 
 //stuff that gets setup
 var board = Board();
@@ -39,6 +39,21 @@ function switchTurn(){
 	$(message_query).html(board.current + "'s turn");
 	$(message_query).removeClass();
 	$(message_query).addClass('msg-' + board.current);
+
+	check_ai_move();
+}
+
+function is_ai_turn(){
+	return ai_brain && ai_brain.pid == board.current;
+}
+
+function check_ai_move(){
+	if (is_ai_turn()){
+		setTimeout(function (){
+			var coord = ai_brain.calculate_ai_move(board);
+			action(coord);
+		}, 400);
+	}
 }
 
 function checkGameOver(){
@@ -74,30 +89,42 @@ function action(coord){
 	}
 }
 
+var test_timer = 0;
+var test_delta = 400;
+
+function test_move(x,y){
+	test_timer += test_delta;
+	setTimeout(function (){
+		action(Pair(x,y));
+	}, test_timer);
+}
+
 function startGame(){
-	ai_on = Boolean(read_url_param('ai'))
 	board.reset();
 	switchTurn();
 	draw();
 
-	// practice forcing win
-	if (ai_on){
-		action(Pair(1,1));
-		action(Pair(0,0));
-		action(Pair(2,2));
-		action(Pair(2,0));
-		action(Pair(1,0));
-		action(Pair(1,2));
-		action(Pair(0,2));
-		action(Pair(0,1));
-		action(Pair(2,2));
-		action(Pair(1,2));
-		action(Pair(0,2));
+	if (Boolean(read_url_param('ai'))){
+		ai_brain = Brain(board.current);
+		check_ai_move();
+	}
+	if (Boolean(read_url_param('test'))){
+		test_move(1,1);
+		test_move(0,0);
+		test_move(2,2);
+		test_move(2,0);
+		test_move(1,0);
+		test_move(1,2);
+		test_move(0,2);
+		test_move(0,1);
+		test_move(2,2);
+		test_move(1,2);
+		test_move(0,2);
 	}
 }
 
 $('.block').on('click', function (){
-	if(!checkGameOver()){
+	if(!checkGameOver() && !is_ai_turn()){
 		var coordStr = $(this)[0].id;
 		var coord = Pair(coordStr[0], coordStr[2]);
 		action(coord);

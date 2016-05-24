@@ -119,7 +119,7 @@ var Grid = function(arr){
 }
 
 
-var Board = function(grid, rotations, flipped){
+var Board = function(current_index, grid, rotations, flipped){
 
     var self = {};
     self.grid = grid || Grid();
@@ -127,7 +127,7 @@ var Board = function(grid, rotations, flipped){
     self.flipped = flipped || false;
 
     self.players = ['red','blue'];
-    self.current_index = 1;
+    self.current_index = current_index || 0;
     self.current = self.players[self.current_index];
 
     self.reset = function(){
@@ -158,27 +158,27 @@ var Board = function(grid, rotations, flipped){
     }
 
     self.rotate = function(){
-        var rotated_grid = self.grid.rotate();
         return Board(
-            rotated_grid,
+            self.current_index,
+            self.grid.rotate(),
             self.rotations + 1,
             self.flipped
         )
     }
 
     self.flip = function(){
-        var flipped_grid = self.grid.flip();
         return Board(
-            flipped_grid,
+            self.current_index,
+            self.grid.flip(),
             self.rotations,
             !self.flipped
         )
     }
 
     self.clone = function(){
-        var cloned_grid = self.grid.clone();
         return Board(
-            cloned_grid,
+            self.current_index,
+            self.grid.clone(),
             self.rotations,
             self.flipped
         )
