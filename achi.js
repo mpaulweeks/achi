@@ -1,3 +1,7 @@
+
+// requires: board.js
+// requires: ai.js
+
 function game(){
 
 read_url_param = function(param_name, as_list){
@@ -25,66 +29,31 @@ read_url_param = function(param_name, as_list){
 
 //constants
 var message_query = '#message';
-var players = ['red','blue'];
 var ai_on = false;
-var current_id = 1;
-var current = players[current_id];
 
 //stuff that gets setup
-var setup;
-var gameOver;
-var stonesInHand;
-var grid;
+var board = Board();
 
 //functions
 function switchTurn(){
-	current_id = (current_id + 1) % players.length;
-	current = players[current_id];
-	$(message_query).html(current + "'s turn");
+	$(message_query).html(board.current + "'s turn");
 	$(message_query).removeClass();
-	$(message_query).addClass('msg-' + current);
+	$(message_query).addClass('msg-' + board.current);
 }
 
-function getEmptyCoord(){
-	if(setup){
-		throw "still setup phase";
-	}
-	for(var x = 0; x < 3; x++){
-		for(var y = 0; y < 3; y++){
-			var coord = Pair(x,y);
-			if(!grid.getGrid(coord)){
-				return coord;
-			}
-		}
-	}
-	throw "no empty places";
-}
-
-function areNeighbors(c1, c2){
-	return (
-		(c1.x == c2.x && Math.abs(c1.y - c2.y) == 1) ||
-		(c1.y == c2.y && Math.abs(c1.x - c2.x) == 1) ||
-		(
-			((c1.x == 1 && c1.y == 1) || (c2.x == 1 && c2.y == 1)) &&
-			Math.abs(c1.x - c2.x) == 1 &&
-			Math.abs(c1.y - c2.y) == 1
-		)
-	)
-}
-
-function checkVictory(){
-	return grid.is_victory(current);
+function checkGameOver(){
+	return board.is_game_over();
 }
 
 function draw(){
 	var stones = $('.block');
-	players.forEach(function (tag){
+	board.players.forEach(function (tag){
 	    stones.removeClass(tag);
 	});
 	for(var x = 0; x < 3; x++){
 		for(var y = 0; y < 3; y++){
 			var coord = Pair(x,y);
-			var tag = grid.getGrid(coord);
+			var tag = board.getGrid(coord);
 			if(tag){
 				$(coord.query).addClass(tag);
 			}
@@ -93,45 +62,21 @@ function draw(){
 }
 
 function action(coord){
-	var moveHappened = false;
-
-	if(setup){
-		if(!grid.getGrid(coord)){
-			grid.setGrid(coord, current);
-			if(grid.stones_remaining() == 0){
-				setup = false;
-			}
-
-			moveHappened = true;
-		}
-	} else {
-		if(grid.getGrid(coord) == current){
-			empty = getEmptyCoord();
-			if(areNeighbors(coord, empty)){
-				grid.setGrid(empty, current);
-				grid.setGrid(coord, null);
-
-				moveHappened = true;
-			}
-		}
-	}
+	var moveHappened = board.action(coord);
 
 	if(moveHappened){
 		draw();
-		gameOver = checkVictory();
-		if(!gameOver){
+		if(!checkGameOver()){
 			switchTurn();
 		} else {
-			$(message_query).html(current + " WINS!!");
+			$(message_query).html(board.current + " WINS!!");
 		}
 	}
 }
 
 function startGame(){
 	ai_on = Boolean(read_url_param('ai'))
-	setup = true;
-	gameOver = false;
-	grid = Grid();
+	board.reset();
 	switchTurn();
 	draw();
 
@@ -152,7 +97,7 @@ function startGame(){
 }
 
 $('.block').on('click', function (){
-	if(!gameOver){
+	if(!checkGameOver()){
 		var coordStr = $(this)[0].id;
 		var coord = Pair(coordStr[0], coordStr[2]);
 		action(coord);
@@ -161,15 +106,15 @@ $('.block').on('click', function (){
 
 $('#reset').on('click', startGame);
 $('#btn1').on('click', function(){
-	console.log(grid.rotate());
+	console.log(board.rotate());
 	draw();
 });
 $('#btn2').on('click', function(){
-	grid.arr = grid.rotate();
+	board = board.rotate();
 	draw();
 });
 $('#btn3').on('click', function(){
-	grid.arr = grid.flip();
+	board = board.flip();
 	draw();
 });
 
