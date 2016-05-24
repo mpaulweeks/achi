@@ -34,7 +34,7 @@ var ai_brain = null;
 //stuff that gets setup
 var board = Board();
 if (Boolean(read_url_param('ai'))){
-	ai_brain = Brain(1 - board.current_index);
+	ai_brain = Brain(board.current_index);
 }
 
 //functions
@@ -114,11 +114,11 @@ function startGame(){
 		test_move(2,0);
 		test_move(1,0);
 		test_move(1,2);
-		test_move(0,2);
-		test_move(0,1);
-		test_move(2,2);
-		test_move(1,2);
-		test_move(0,2);
+		// test_move(0,2);
+		// test_move(0,1);
+		// test_move(2,2);
+		// test_move(1,2);
+		// test_move(0,2);
 	}
 }
 

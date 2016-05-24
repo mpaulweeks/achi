@@ -1,60 +1,12 @@
 
 // requires: board.js
+// requires: positions.js
 
 var Brain = function(ai_player_index){
     
     var self = {};
     self.player_index = ai_player_index;
     self.player_id = PLAYER_IDS[self.player_index];
-
-    var generate_positions = function(player_index){
-        var p_id = PLAYER_IDS[player_index];
-        var o_id = PLAYER_IDS[1 - player_index];
-        var move1 = [
-            [null,null,null],
-            [null,p_id,null],
-            [null,null,null],
-        ];
-        var move1_trap = [
-            [p_id,o_id,null],
-            [null,p_id,null],
-            [null,null,null],
-        ];
-        var move2 = [
-            [o_id,null,null],
-            [null,p_id,null],
-            [null,null,p_id],
-        ];
-        var move2_trap1 = [
-            [o_id,null,null],
-            [o_id,p_id,null],
-            [p_id,null,p_id],
-        ];
-        var move2_trap2 = [
-            [o_id,null,null],
-            [null,p_id,o_id],
-            [null,p_id,p_id],
-        ];
-        var move4 = [
-            [o_id,p_id,o_id],
-            [null,p_id,null],
-            [p_id,o_id,p_id],
-        ];
-        var move5 = [
-            [o_id,p_id,o_id],
-            [o_id,p_id,p_id],
-            [p_id,o_id,null],
-        ];
-        return [
-            move1,
-            move1_trap,
-            move2,
-            move2_trap1,
-            move2_trap2,
-            move4,
-            move5,
-        ];
-    }
     self.positions = generate_positions(self.player_index);
 
     self.check_killing_blow = function(current_board){
