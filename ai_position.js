@@ -90,6 +90,16 @@ var defensive_positions = function(p_id, o_id){
         [null,p_id,null],
         [null,null,null],
     ];
+    var move2_side_sandwich = [
+        [p_id,o_id,null],
+        [null,p_id,null],
+        [null,o_id,null],
+    ];
+    var move2_side_close = [
+        [null,o_id,p_id],
+        [o_id,p_id,null],
+        [null,null,null],
+    ];
     return [
         move1_center,
         move2_center,
@@ -97,6 +107,8 @@ var defensive_positions = function(p_id, o_id){
         move2_corner_corner,
         move2_corner_side,
         move1_side,
+        move2_side_sandwich,
+        move2_side_close,
     ];
 }
 

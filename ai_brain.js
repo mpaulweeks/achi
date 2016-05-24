@@ -3,7 +3,7 @@
 // requires: positions.js
 
 var Brain = function(ai_player_index){
-    
+
     var self = {};
     self.player_index = ai_player_index;
     self.player_id = PLAYER_IDS[self.player_index];
@@ -70,19 +70,19 @@ var Brain = function(ai_player_index){
     self.calculate_ai_move = function(current_board){
         var coord = self.check_killing_blow(current_board);
         if (coord) {
+            console.log('found killing blow');
             return coord;
         }
-        console.log('failed to find killing blow');
         coord = self.check_block(current_board);
         if (coord) {
+            console.log('found block');
             return coord;
         }
-        console.log('failed to find block');
         coord = self.check_perfect_play(current_board);
         if (coord) {
+            console.log('found matching position');
             return coord;
         }
-        console.log('failed to find perfect play');
         console.log('resorting to random');
         return self.get_random_move(current_board);
     }
