@@ -29,16 +29,6 @@ var players = ['red','blue'];
 var ai_on = false;
 var current_id = 1;
 var current = players[current_id];
-var winningCoords = [
-	[pair(0,0), pair(0,1), pair(0,2)],
-	[pair(1,0), pair(1,1), pair(1,2)],
-	[pair(2,0), pair(2,1), pair(2,2)],
-	[pair(0,0), pair(1,0), pair(2,0)],
-	[pair(0,1), pair(1,1), pair(2,1)],
-	[pair(0,2), pair(1,2), pair(2,2)],
-	[pair(0,0), pair(1,1), pair(2,2)],
-	[pair(0,2), pair(1,1), pair(2,0)],
-];
 
 //stuff that gets setup
 var setup;
@@ -55,41 +45,18 @@ function switchTurn(){
 	$(message_query).addClass('msg-' + current);
 }
 
-function pair(x,y){
-	var self = {};
-	self.x = x;
-	self.y = y;
-	self.query = '#' + self.x + '-' + self.y;
-
-	self.matches = function(other){
-		return self.x == other.x && self.y == other.y;
-	}
-
-	return self;
-}
-
-function getGrid(coord){
-	return grid[coord.x][coord.y];
-}
-
-function setGrid(coord, value){
-	grid[coord.x][coord.y] = value;
-}
-
 function getEmptyCoord(){
 	if(setup){
 		throw "still setup phase";
 	}
-
 	for(var x = 0; x < 3; x++){
 		for(var y = 0; y < 3; y++){
-			var coord = pair(x,y);
-			if(!getGrid(coord)){
+			var coord = Pair(x,y);
+			if(!grid.getGrid(coord)){
 				return coord;
 			}
 		}
 	}
-
 	throw "no empty places";
 }
 
@@ -106,30 +73,7 @@ function areNeighbors(c1, c2){
 }
 
 function checkVictory(){
-	var current_stones = [];
-	for(var x = 0; x < 3; x++){
-		for(var y = 0; y < 3; y++){
-			var coord = pair(x,y);
-			if(getGrid(coord) == current){
-				current_stones.push(coord);
-			}
-		}
-	}
-
-	var victory = false;
-	winningCoords.forEach(function (stone_combination){
-		var allStones = true;
-		stone_combination.forEach(function (winning_stone){
-			var match = false;
-			current_stones.forEach(function (player_stone){
-				match |= winning_stone.matches(player_stone);
-			});
-			allStones &= match;
-		});
-		victory |= allStones;
-	});
-
-	return victory;
+	return grid.is_victory(current);
 }
 
 function draw(){
@@ -139,8 +83,8 @@ function draw(){
 	});
 	for(var x = 0; x < 3; x++){
 		for(var y = 0; y < 3; y++){
-			var coord = pair(x,y);
-			var tag = getGrid(coord);
+			var coord = Pair(x,y);
+			var tag = grid.getGrid(coord);
 			if(tag){
 				$(coord.query).addClass(tag);
 			}
@@ -152,21 +96,20 @@ function action(coord){
 	var moveHappened = false;
 
 	if(setup){
-		if(!getGrid(coord)){
-			setGrid(coord, current);
-			stonesInHand--;
-			if(stonesInHand == 0){
+		if(!grid.getGrid(coord)){
+			grid.setGrid(coord, current);
+			if(grid.stones_remaining() == 0){
 				setup = false;
 			}
 
 			moveHappened = true;
 		}
 	} else {
-		if(getGrid(coord) == current){
+		if(grid.getGrid(coord) == current){
 			empty = getEmptyCoord();
 			if(areNeighbors(coord, empty)){
-				setGrid(empty, current);
-				setGrid(coord, null);
+				grid.setGrid(empty, current);
+				grid.setGrid(coord, null);
 
 				moveHappened = true;
 			}
@@ -188,35 +131,30 @@ function startGame(){
 	ai_on = Boolean(read_url_param('ai'))
 	setup = true;
 	gameOver = false;
-	stonesInHand = 8;
-	grid = [
-		[null,null,null],
-		[null,null,null],
-		[null,null,null],
-	];
+	grid = Grid();
 	switchTurn();
 	draw();
 
 	// practice forcing win
 	if (ai_on){
-		action(pair(1,1));
-		action(pair(0,0));
-		action(pair(2,2));
-		action(pair(2,0));
-		action(pair(1,0));
-		action(pair(1,2));
-		action(pair(0,2));
-		action(pair(0,1));
-		action(pair(2,2));
-		action(pair(1,2));
-		action(pair(0,2));
+		action(Pair(1,1));
+		action(Pair(0,0));
+		action(Pair(2,2));
+		action(Pair(2,0));
+		action(Pair(1,0));
+		action(Pair(1,2));
+		action(Pair(0,2));
+		action(Pair(0,1));
+		action(Pair(2,2));
+		action(Pair(1,2));
+		action(Pair(0,2));
 	}
 }
 
 $('.block').on('click', function (){
 	if(!gameOver){
 		var coordStr = $(this)[0].id;
-		var coord = pair(coordStr[0], coordStr[2]);
+		var coord = Pair(coordStr[0], coordStr[2]);
 		action(coord);
 	}
 });

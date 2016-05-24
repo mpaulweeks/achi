@@ -1,32 +1,37 @@
 
+var Pair = function(x,y){
+    var p = {};
+    p.x = x;
+    p.y = y;
+    p.query = '#' + p.x + '-' + p.y;
+    p.matches = function(other){
+        return p.x == other.x && p.y == other.y;
+    }
+    return p;
+}
+
 var Grid = function(arr){
     var self = {};
-    self.arr = arr || [
-        [null,null,null],
-        [null,null,null],
-        [null,null,null],
-    ];
 
-    self.pair = function(x,y){
-        var p = {};
-        p.x = x;
-        p.y = y;
-        p.query = '#' + p.x + '-' + p.y;
-        p.matches = function(other){
-            return p.x == other.x && p.y == other.y;
-        }
-        return p;
+    self.generate_grid = function(){
+        return [
+            [null,null,null],
+            [null,null,null],
+            [null,null,null],
+        ];
     }
+
+    self.arr = arr || self.generate_grid();
     
     self.winning_coords = [
-        [pair(0,0), pair(0,1), pair(0,2)],
-        [pair(1,0), pair(1,1), pair(1,2)],
-        [pair(2,0), pair(2,1), pair(2,2)],
-        [pair(0,0), pair(1,0), pair(2,0)],
-        [pair(0,1), pair(1,1), pair(2,1)],
-        [pair(0,2), pair(1,2), pair(2,2)],
-        [pair(0,0), pair(1,1), pair(2,2)],
-        [pair(0,2), pair(1,1), pair(2,0)],
+        [Pair(0,0), Pair(0,1), Pair(0,2)],
+        [Pair(1,0), Pair(1,1), Pair(1,2)],
+        [Pair(2,0), Pair(2,1), Pair(2,2)],
+        [Pair(0,0), Pair(1,0), Pair(2,0)],
+        [Pair(0,1), Pair(1,1), Pair(2,1)],
+        [Pair(0,2), Pair(1,2), Pair(2,2)],
+        [Pair(0,0), Pair(1,1), Pair(2,2)],
+        [Pair(0,2), Pair(1,1), Pair(2,0)],
     ];
 
     self.getGrid = function(coord){
@@ -41,6 +46,7 @@ var Grid = function(arr){
         var total_stones = 0;
         for(var x = 0; x < 3; x++){
             for(var y = 0; y < 3; y++){
+                var coord = Pair(x,y);
                 if(self.getGrid(coord)){
                     total_stones += 1;
                 }
@@ -53,7 +59,7 @@ var Grid = function(arr){
         var current_stones = [];
         for(var x = 0; x < 3; x++){
             for(var y = 0; y < 3; y++){
-                var coord = pair(x,y);
+                var coord = Pair(x,y);
                 if(self.getGrid(coord) == player){
                     current_stones.push(coord);
                 }
@@ -61,7 +67,7 @@ var Grid = function(arr){
         }
 
         var victory = false;
-        winning_coords.forEach(function (stone_combination){
+        self.winning_coords.forEach(function (stone_combination){
             var allStones = true;
             stone_combination.forEach(function (winning_stone){
                 var match = false;
@@ -73,6 +79,30 @@ var Grid = function(arr){
             victory |= allStones;
         });
         return victory;
+    }
+
+    self.rotate = function(){
+        var new_grid = generate_grid();
+        new_grid[1][1] = self.arr[1,1];
+        new_grid[0][0] = self.arr[0,2];
+        new_grid[2][0] = self.arr[0,0];
+        new_grid[2][2] = self.arr[2,0];
+        new_grid[0][2] = self.arr[2,2];
+        new_grid[1][0] = self.arr[0,1];
+        new_grid[2][1] = self.arr[1,0];
+        new_grid[1][2] = self.arr[2,1];
+        new_grid[0][1] = self.arr[1,2];
+        return new_grid;
+    }
+
+    self.flip = function(){
+        var new_grid = generate_grid();
+        for(var x = 0; x < 3; x++){
+            for(var y = 0; y < 3; y++){
+                new_grid[x][y] = self.arr[x][2-y];
+            }
+        }
+        return new_grid;
     }
 
     return self;
@@ -87,7 +117,7 @@ var Board = function(grid, rotations, flipped){
     self.flipped = flipped || false;
 
     self.rotate = function(){
-        var rotated_grid = rotate_grid(self.grid);
+        var rotated_grid = self.grid.rotate();
         return Board(
             rotated_grid,
             self.rotations + 1,
@@ -96,7 +126,7 @@ var Board = function(grid, rotations, flipped){
     }
 
     self.flip = function(){
-        var flipped_grid = flip_grid(self.grid);
+        var flipped_grid = self.grid.flip();
         return Board(
             flipped_grid,
             self.rotations,
@@ -119,11 +149,11 @@ var Board = function(grid, rotations, flipped){
 
     self.undo_mutation = function(){
         var new_grid = self.grid;
-        for (var i = 0; i < self.rotations; i++){
-            new_grid = un_rotate_grid(new_grid);
+        for (var i = 0; i < 4 - self.rotations; i++){
+            new_grid = new_grid.rotate();
         }
         if (self.flipped){
-            new_grid = un_flip_grid(new_grid);
+            new_grid = new_grid.flip();
         }
         return Board(new_grid);
     }
