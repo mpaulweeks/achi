@@ -122,21 +122,17 @@ var Grid = function(arr){
 var PLAYER_IDS = ['red','blue'];
 
 
-var Board = function(current_index, grid, rotations, flipped){
+var Board = function(current_index, grid){
 
     var self = {};
     self.grid = grid || Grid();
-    self.rotations = rotations || 0;
-    self.flipped = flipped || false;
 
     self.current_index = current_index || 0;
     self.current = PLAYER_IDS[self.current_index];
 
     self.reset = function(){
-        self.grid = Grid();
-        self.rotations = 0;
-        self.flipped = false;
         self.switch_current();
+        self.grid = Grid();
     }
 
     self.getGrid = function(coord){
@@ -163,8 +159,6 @@ var Board = function(current_index, grid, rotations, flipped){
         return Board(
             self.current_index,
             self.grid.rotate(),
-            self.rotations + 1,
-            self.flipped
         )
     }
 
@@ -172,8 +166,6 @@ var Board = function(current_index, grid, rotations, flipped){
         return Board(
             self.current_index,
             self.grid.flip(),
-            self.rotations,
-            !self.flipped
         )
     }
 
@@ -181,8 +173,6 @@ var Board = function(current_index, grid, rotations, flipped){
         return Board(
             self.current_index,
             self.grid.clone(),
-            self.rotations,
-            self.flipped
         )
     }
 
@@ -197,17 +187,6 @@ var Board = function(current_index, grid, rotations, flipped){
             self.flip().rotate().rotate(),
             self.flip().rotate().rotate().rotate()
         ]
-    }
-
-    self.undo_mutation = function(){
-        var new_grid = self.grid;
-        for (var i = 0; i < 4 - self.rotations; i++){
-            new_grid = new_grid.rotate();
-        }
-        if (self.flipped){
-            new_grid = new_grid.flip();
-        }
-        return Board(new_grid);
     }
 
     self.getEmptyCoord = function(){
