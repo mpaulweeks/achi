@@ -37,9 +37,19 @@ if (Boolean(read_url_param('ai'))){
 	ai_brain = Brain(board.current_index);
 }
 
+function get_player_name(){
+	if (ai_brain){
+		if (is_ai_turn()){
+			return "AI";
+		}
+		return "Human";
+	}
+	return board.current;
+}
+
 //functions
 function switchTurn(){
-	$(message_query).html(board.current + "'s turn");
+	$(message_query).html(get_player_name() + "'s turn");
 	$(message_query).removeClass();
 	$(message_query).addClass('msg-' + board.current);
 
@@ -87,7 +97,7 @@ function action(coord){
 		if(!checkGameOver()){
 			switchTurn();
 		} else {
-			$(message_query).html(board.current + " WINS!!");
+			$(message_query).html(get_player_name() + " WINS!!");
 		}
 	}
 }
