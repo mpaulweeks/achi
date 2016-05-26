@@ -1,120 +1,87 @@
+
+// requires: board.js
+// requires: ai.js
+
 function game(){
+
+read_url_param = function(param_name, as_list){
+    as_list = as_list || false;
+    var vars = {};
+    var q = document.URL.split('?')[1];
+    if(q != undefined){
+        q = q.split('&');
+        for(var i = 0; i < q.length; i++){
+            var param = q[i].split('=');
+            var name = param[0];
+            var value = param[1];
+            vars[name] = vars[name] || [];
+            vars[name].push(value);
+        }
+    }
+    if (vars.hasOwnProperty(param_name)){
+        if (vars[param_name].length == 1 && !as_list){
+            return vars[param_name][0];
+        }
+        return vars[param_name];
+    }
+    return null;
+};
 
 //constants
 var message_query = '#message';
-var players = ['red','blue'];
-var current_id = 1;
-var current = players[current_id];
-var winningCoords = [
-	[pair(0,0), pair(0,1), pair(0,2)],
-	[pair(1,0), pair(1,1), pair(1,2)],
-	[pair(2,0), pair(2,1), pair(2,2)],
-	[pair(0,0), pair(1,0), pair(2,0)],
-	[pair(0,1), pair(1,1), pair(2,1)],
-	[pair(0,2), pair(1,2), pair(2,2)],
-	[pair(0,0), pair(1,1), pair(2,2)],
-	[pair(0,2), pair(1,1), pair(2,0)],
-];
+var ai_brain = null;
 
 //stuff that gets setup
-var setup;
-var gameOver;
-var stonesInHand;
-var grid;
+var board = Board();
+if (Boolean(read_url_param('ai'))){
+	ai_brain = Brain(board.current_index);
+}
+
+function get_player_name(){
+	if (ai_brain){
+		if (is_ai_turn()){
+			return "AI";
+		}
+		return "Human";
+	}
+	return board.current;
+}
 
 //functions
 function switchTurn(){
-	current_id = (current_id + 1) % players.length;
-	current = players[current_id];
-	$(message_query).html(current + "'s turn");
+	$(message_query).html(get_player_name() + "'s turn");
+	$(message_query).removeClass();
+	$(message_query).addClass('msg-' + board.current);
+
+	check_ai_move();
 }
 
-function pair(x,y){
-	var self = {};
-	self.x = x;
-	self.y = y;
-	self.query = '#' + self.x + '-' + self.y;
+function is_ai_turn(){
+	return ai_brain && ai_brain.player_id == board.current;
+}
 
-	self.matches = function(other){
-		return self.x == other.x && self.y == other.y;
+function check_ai_move(){
+	if (is_ai_turn()){
+		setTimeout(function (){
+			var coord = ai_brain.calculate_ai_move(board);
+			action(coord);
+		}, 400);
 	}
-
-	return self;
 }
 
-function getGrid(coord){
-	return grid[coord.x][coord.y];
-}
-
-function setGrid(coord, value){
-	grid[coord.x][coord.y] = value;
-}
-
-function getEmptyCoord(){
-	if(setup){
-		throw "still setup phase";
-	}
-
-	for(var x = 0; x < 3; x++){
-		for(var y = 0; y < 3; y++){
-			var coord = pair(x,y);
-			if(!getGrid(coord)){
-				return coord;
-			}
-		}
-	}
-
-	throw "no empty places";
-}
-
-function areNeighbors(c1, c2){
-	return (
-		(c1.x == c2.x && Math.abs(c1.y - c2.y) == 1) ||
-		(c1.y == c2.y && Math.abs(c1.x - c2.x) == 1) ||
-		(
-			((c1.x == 1 && c1.y == 1) || (c2.x == 1 && c2.y == 1)) &&
-			Math.abs(c1.x - c2.x) == 1 &&
-			Math.abs(c1.y - c2.y) == 1
-		)
-	)
-}
-
-function checkVictory(){
-	var current_stones = [];
-	for(var x = 0; x < 3; x++){
-		for(var y = 0; y < 3; y++){
-			var coord = pair(x,y);
-			if(getGrid(coord) == current){
-				current_stones.push(coord);
-			}
-		}
-	}
-
-	var victory = false;
-	winningCoords.forEach(function (stone_combination){
-		var allStones = true;
-		stone_combination.forEach(function (winning_stone){
-			var match = false;
-			current_stones.forEach(function (player_stone){
-				match |= winning_stone.matches(player_stone);
-			});
-			allStones &= match;
-		});
-		victory |= allStones;
-	});
-
-	return victory;
+function checkGameOver(){
+	return board.is_game_over();
 }
 
 function draw(){
 	var stones = $('.block');
-	players.forEach(function (tag){
+	PLAYER_IDS.forEach(function (tag){
 	    stones.removeClass(tag);
 	});
 	for(var x = 0; x < 3; x++){
 		for(var y = 0; y < 3; y++){
-			var coord = pair(x,y);
-			var tag = getGrid(coord);
+			var coord = Pair(x,y);
+			var tag = board.getGrid(coord);
 			if(tag){
 				$(coord.query).addClass(tag);
 			}
@@ -123,58 +90,52 @@ function draw(){
 }
 
 function action(coord){
-	var moveHappened = false;
-
-	if(setup){
-		if(!getGrid(coord)){
-			setGrid(coord, current);
-			stonesInHand--;
-			if(stonesInHand == 0){
-				setup = false;
-			}
-
-			moveHappened = true;
-		}
-	} else {
-		if(getGrid(coord) == current){
-			empty = getEmptyCoord();
-			if(areNeighbors(coord, empty)){
-				setGrid(empty, current);
-				setGrid(coord, null);
-
-				moveHappened = true;
-			}
-		}
-	}
+	var moveHappened = board.action(coord);
 
 	if(moveHappened){
 		draw();
-		gameOver = checkVictory();
-		if(!gameOver){
+		if(!checkGameOver()){
 			switchTurn();
 		} else {
-			$(message_query).html(current + " WINS!!");
+			$(message_query).html(get_player_name() + " WINS!!");
 		}
 	}
 }
 
+var test_timer = 0;
+var test_delta = 400;
+
+function test_move(x,y){
+	test_timer += test_delta;
+	setTimeout(function (){
+		action(Pair(x,y));
+	}, test_timer);
+}
+
 function startGame(){
-	setup = true;
-	gameOver = false;
-	stonesInHand = 8;
-	grid = [
-		[null,null,null],
-		[null,null,null],
-		[null,null,null],
-	];
+	board.reset();
 	switchTurn();
 	draw();
+
+	if (Boolean(read_url_param('test'))){
+		test_move(1,1);
+		test_move(0,0);
+		test_move(2,2);
+		test_move(2,0);
+		test_move(1,0);
+		test_move(1,2);
+		test_move(0,2);
+		test_move(0,1);
+		test_move(2,2);
+		test_move(1,2);
+		test_move(0,2);
+	}
 }
 
 $('.block').on('click', function (){
-	if(!gameOver){
+	if(!checkGameOver() && !is_ai_turn()){
 		var coordStr = $(this)[0].id;
-		var coord = pair(coordStr[0], coordStr[2]);
+		var coord = Pair(coordStr[0], coordStr[2]);
 		action(coord);
 	}
 });
@@ -182,5 +143,4 @@ $('.block').on('click', function (){
 $('#reset').on('click', startGame);
 
 startGame();
-
 }
