@@ -158,21 +158,21 @@ var Board = function(current_index, grid){
     self.rotate = function(){
         return Board(
             self.current_index,
-            self.grid.rotate(),
+            self.grid.rotate()
         )
     }
 
     self.flip = function(){
         return Board(
             self.current_index,
-            self.grid.flip(),
+            self.grid.flip()
         )
     }
 
     self.clone = function(){
         return Board(
             self.current_index,
-            self.grid.clone(),
+            self.grid.clone()
         )
     }
 
